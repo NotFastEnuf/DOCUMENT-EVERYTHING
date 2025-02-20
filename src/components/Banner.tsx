@@ -6,13 +6,13 @@ const Banner = () => {
       <div className="font-semibold text-lg">Document Everything</div>
       <div className="flex gap-4">
         <Link
-          to="#"
+          to="https://www.paypal.me/NotFastEnuf"
           className="text-primary-foreground hover:text-primary-foreground/80 transition-colors"
         >
           Donate
         </Link>
         <Link
-          to="#"
+          to="https://notfastenuf.github.io/"
           className="text-primary-foreground hover:text-primary-foreground/80 transition-colors"
         >
           Visit Makerspace Hub
