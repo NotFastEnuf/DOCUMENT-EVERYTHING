@@ -1,14 +1,7 @@
 import React from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
-import {
-  GripVertical,
-  Trash2,
-  Image as ImageIcon,
-  Type,
-  Video,
-  X,
-} from "lucide-react";
+import { GripVertical, Trash2, Upload, Type, Globe, X } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { StepField } from "@/lib/types";
 import { ResizableBox } from "react-resizable";
@@ -145,7 +138,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                             src={field.embedUrl}
                             className="w-full h-full rounded-lg pointer-events-none"
                             frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
                             allowFullScreen
                           />
                         ) : (
@@ -211,8 +204,8 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                     document.getElementById(`media-upload-${id}`)?.click()
                   }
                 >
-                  <ImageIcon className="h-4 w-4" />
-                  Add Media
+                  <Upload className="h-4 w-4" />
+                  Encode Media
                 </Button>
                 <Button
                   variant="outline"
@@ -240,8 +233,8 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                     }
                   }}
                 >
-                  <Video className="h-4 w-4" />
-                  Add Video
+                  <Globe className="h-4 w-4" />
+                  Embed Media
                 </Button>
               </div>
 
