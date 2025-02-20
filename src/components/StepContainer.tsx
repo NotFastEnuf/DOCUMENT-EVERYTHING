@@ -102,11 +102,12 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   <ResizableBox
                     width={field.width || 800}
                     height={field.height || 400}
+                    maxConstraints={[800, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        width: size.width,
+                        width: Math.min(size.width, 800),
                         height: size.height,
                       };
                       onFieldsChange(updatedFields);
@@ -125,11 +126,12 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   <ResizableBox
                     width={field.width || 800}
                     height={field.height || 450}
+                    maxConstraints={[800, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        width: size.width,
+                        width: Math.min(size.width, 800),
                         height: size.height,
                       };
                       onFieldsChange(updatedFields);
@@ -182,15 +184,20 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                 </Button>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/*"
                   className="hidden"
-                  id={`image-upload-${id}`}
+                  id={`media-upload-${id}`}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
                       const reader = new FileReader();
                       reader.onload = (event) => {
-                        onAddField("image", event.target?.result as string);
+                        const result = event.target?.result as string;
+                        if (file.type.startsWith("image/")) {
+                          onAddField("image", result);
+                        } else if (file.type.startsWith("video/")) {
+                          onAddField("video", result);
+                        }
                       };
                       reader.readAsDataURL(file);
                     }
@@ -201,11 +208,11 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   size="sm"
                   className="flex items-center gap-2"
                   onClick={() =>
-                    document.getElementById(`image-upload-${id}`)?.click()
+                    document.getElementById(`media-upload-${id}`)?.click()
                   }
                 >
                   <ImageIcon className="h-4 w-4" />
-                  Add Image
+                  Add Media
                 </Button>
                 <Button
                   variant="outline"

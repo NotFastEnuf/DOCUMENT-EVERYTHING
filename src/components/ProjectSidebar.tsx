@@ -135,7 +135,7 @@ const ProjectSidebar = ({
             .map((project) => (
               <Card
                 key={project.id}
-                className={`p-3 cursor-pointer transition-colors hover:bg-accent ${project.id === selectedProjectId ? "bg-accent" : ""}`}
+                className={`p-3 cursor-pointer transition-colors hover:bg-accent w-full overflow-hidden ${project.id === selectedProjectId ? "bg-accent" : ""}`}
                 onClick={() => onProjectSelect(project.id)}
               >
                 <div className="flex items-center gap-2">
@@ -162,7 +162,7 @@ const ProjectSidebar = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-xs text-muted-foreground whitespace-wrap">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
                       {project.steps.length} slides
                     </span>
                     <DropdownMenu>
@@ -212,11 +212,11 @@ const ProjectSidebar = ({
                         height: Math.min(300, project.steps.length * 32 + 16),
                       }}
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1 w-full">
                         {project.steps.map((step, index) => (
                           <div
                             key={step.id}
-                            className="flex items-center gap-2 px-2 py-1 text-sm text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 cursor-pointer"
+                            className="flex items-center gap-2 px-2 py-1 text-sm text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 cursor-pointer w-full"
                             onClick={(e) => {
                               e.stopPropagation();
                               onSlideClick(step.id);
@@ -225,7 +225,7 @@ const ProjectSidebar = ({
                             <div className="w-4 h-4 flex items-center justify-center text-xs">
                               {index + 1}
                             </div>
-                            <span>
+                            <span className="truncate flex-1">
                               {step.fields.find((f) => f.type === "title")
                                 ?.content || "Untitled Step"}
                             </span>
