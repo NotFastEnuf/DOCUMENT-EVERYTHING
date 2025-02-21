@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Step, Project } from "./types";
+import { Step, Project, StepField, StepFieldType } from "./types";
 
 interface ProjectStore {
   projects: Project[];
@@ -13,6 +13,23 @@ interface ProjectStore {
   importProject: (projectData: { name: string; steps: Step[] }) => void;
 }
 
+// Helper function to create StepField objects with guaranteed type safety
+const createStepField = (
+  id: string,
+  type: StepFieldType,
+  content: string,
+  width?: number,
+  height?: number,
+  embedUrl?: string
+): StepField => ({
+  id,
+  type,
+  content,
+  width,
+  height,
+  embedUrl,
+});
+
 export const useProjectStore = create<ProjectStore>((set) => ({
   projects: [
     {
@@ -22,89 +39,63 @@ export const useProjectStore = create<ProjectStore>((set) => ({
         {
           id: "1",
           fields: [
-            {
-              id: "f1",
-              type: "title",
-              content: "Welcome to Project Documentation",
-            },
-            {
-              id: "f2",
-              type: "text",
-              content:
-                "This guide will help you create detailed project documentation with step-by-step instructions.",
-            },
-            {
-              id: "f3",
-              type: "image",
-              content:
-                "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
-              width: 800,
-              height: 400,
-            },
+            createStepField("f1", "title", "Welcome to Project Documentation"),
+            createStepField(
+              "f2",
+              "text",
+              "This guide will help you create detailed project documentation with step-by-step instructions."
+            ),
+            createStepField(
+              "f3",
+              "image",
+              "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
+              800,
+              400
+            ),
           ],
         },
         {
           id: "2",
           fields: [
-            {
-              id: "f4",
-              type: "title",
-              content: "Creating Your First Slide",
-            },
-            {
-              id: "f5",
-              type: "text",
-              content:
-                "Click the 'Add Slide' button to create a new slide. Each slide can include text and images.",
-            },
+            createStepField("f4", "title", "Creating Your First Slide"),
+            createStepField(
+              "f5",
+              "text",
+              "Click the 'Add Slide' button to create a new slide. Each slide can include text and images."
+            ),
           ],
         },
         {
           id: "3",
           fields: [
-            {
-              id: "f6",
-              type: "title",
-              content: "Organizing Slides",
-            },
-            {
-              id: "f7",
-              type: "text",
-              content:
-                "Drag and drop slides to reorder them. Use the grip handle on the left to move slides around.",
-            },
+            createStepField("f6", "title", "Organizing Slides"),
+            createStepField(
+              "f7",
+              "text",
+              "Drag and drop slides to reorder them. Use the grip handle on the left to move slides around."
+            ),
           ],
         },
         {
           id: "4",
           fields: [
-            {
-              id: "f8",
-              type: "title",
-              content: "Adding Media",
-            },
-            {
-              id: "f9",
-              type: "text",
-              content:
-                "Enhance your documentation by adding images to each slide using the 'Add Image' button.",
-            },
+            createStepField("f8", "title", "Adding Media"),
+            createStepField(
+              "f9",
+              "text",
+              "Enhance your documentation by adding images to each slide using the 'Add Image' button."
+            ),
           ],
         },
         {
           id: "5",
           fields: [
-            {
-              id: "f10",
-              type: "title",
-              content: "Previewing and Exporting",
-            },
-            {
-              id: "f11",
-              type: "text",
-              content:
-                "Use the 'Preview' button to see how your documentation will look, and export it when you're ready.",
-            },
+            createStepField("f10", "title", "Previewing and Exporting"),
+            createStepField(
+              "f11",
+              "text",
+              "Use the 'Preview' button to see how your documentation will look, and export it when you're ready."
+            ),
           ],
         },
       ],
@@ -115,13 +106,13 @@ export const useProjectStore = create<ProjectStore>((set) => ({
   updateProjectSteps: (projectId, steps) =>
     set((state) => ({
       projects: state.projects.map((project) =>
-        project.id === projectId ? { ...project, steps } : project,
+        project.id === projectId ? { ...project, steps } : project
       ),
     })),
   updateProjectName: (projectId, name) =>
     set((state) => ({
       projects: state.projects.map((project) =>
-        project.id === projectId ? { ...project, name } : project,
+        project.id === projectId ? { ...project, name } : project
       ),
     })),
   createProject: () =>
@@ -133,16 +124,8 @@ export const useProjectStore = create<ProjectStore>((set) => ({
           {
             id: "1",
             fields: [
-              {
-                id: "f12",
-                type: "title",
-                content: "Getting Started",
-              },
-              {
-                id: "f13",
-                type: "text",
-                content: "Begin documenting your project...",
-              },
+              createStepField("f12", "title", "Getting Started"),
+              createStepField("f13", "text", "Begin documenting your project..."),
             ],
           },
         ],
@@ -176,7 +159,6 @@ export const useProjectStore = create<ProjectStore>((set) => ({
           steps: project.steps,
         },
       };
-
       const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -207,19 +189,37 @@ export const useProjectStore = create<ProjectStore>((set) => ({
                       } else if (field.type === "text") {
                         return `<p class="mb-4 whitespace-pre-wrap">${field.content}</p>`;
                       } else if (field.type === "image") {
-                        return `<img src="${field.content}" alt="Step ${index + 1}" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
+                        return `<img src="${field.content}" alt="Step ${
+                          index + 1
+                        }" class="rounded-lg mb-4" style="max-width: 100%; width: ${
+                          field.width
+                        }px; height: ${
+                          field.height
+                        }px; object-fit: cover;">`;
                       } else if (field.type === "video") {
                         if (field.embedUrl) {
-                          return `<iframe src="${field.embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
+                          return `<iframe src="${
+                            field.embedUrl
+                          }" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${
+                            field.width || 800
+                          }px; height: ${
+                            field.height || 450
+                          }px;"></iframe>`;
                         } else {
-                          return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
+                          return `<video src="${
+                            field.content
+                          }" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${
+                            field.width || 800
+                          }px; height: ${
+                            field.height || 450
+                          }px;"></video>`;
                         }
                       }
                       return "";
                     })
                     .join("")}
                 </div>
-              `,
+              `
                 )
                 .join("")}
             </div>

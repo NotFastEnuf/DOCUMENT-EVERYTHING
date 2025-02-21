@@ -33,8 +33,8 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
       onDragEnd = () => {},
       onDrop = () => {},
       onDragOver = () => {},
-      onTitleChange = () => {},
-      onContentChange = () => {},
+      //onTitleChange = () => {},
+      //onContentChange = () => {},
     },
     ref,
   ) => {
@@ -229,7 +229,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                           .split("?")[0];
                         embedUrl = `https://player.vimeo.com/video/${videoId}`;
                       }
-                      onAddField("video", url, { embedUrl });
+                      onAddField("video", embedUrl);
                     }
                   }}
                 >

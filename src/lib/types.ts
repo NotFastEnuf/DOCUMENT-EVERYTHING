@@ -1,10 +1,11 @@
+export type StepFieldType = "title" | "text" | "image" | "video" | "iframe";
+
 export interface StepField {
   id: string;
-  type: "title" | "text" | "image" | "video" | "iframe";
+  type: StepFieldType;
   content: string;
   width?: number;
   height?: number;
-  source?: "file" | "url";
   embedUrl?: string;
 }
 

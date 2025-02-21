@@ -32,14 +32,14 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 
-import { Project } from "@/lib/types";
+import { Project, Step } from "@/lib/types";
 
 interface ProjectSidebarProps {
   projects?: Project[];
   selectedProjectId?: string;
   onProjectSelect?: (id: string) => void;
   onNewProject?: () => void;
-  onImport?: () => void;
+  onImport?: (data: { name: string; steps: Step[] }) => void;
   onSlideClick?: (slideId: string) => void;
   onDeleteProject?: (id: string) => void;
   onExportProject?: (id: string) => void;
@@ -67,7 +67,7 @@ const ProjectSidebar = ({
     const text = await file.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, "text/html");
-
+  
     const scriptTag = doc.getElementById("tempo-project-data");
     if (scriptTag) {
       try {

@@ -66,24 +66,24 @@ const StepEditor = ({
   const stepRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   const addStep = () => {
-    const newStep = {
+    const newStep: Step = {
       id: Date.now().toString(),
       fields: [
         {
           id: `f${Date.now()}-1`,
-          type: "title",
+          type: "title" as const,
           content: "",
         },
         {
           id: `f${Date.now()}-2`,
-          type: "text",
+          type: "text" as const,
           content: "",
         },
       ],
     };
     const updatedSteps = [...steps, newStep];
     onStepsChange(updatedSteps);
-
+  
     // Scroll to the new step and the add button
     setTimeout(() => {
       const newStepEl = stepRefs.current[newStep.id];
@@ -92,6 +92,7 @@ const StepEditor = ({
       }
     }, 100);
   };
+  
 
   const deleteStep = (index: number) => {
     const updatedSteps = steps.filter((_, i) => i !== index);
