@@ -147,11 +147,9 @@ const StepEditor = ({
                 } else if (field.type === "image") {
                   return `<img src="${field.content}" alt="Step ${index + 1}" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
                 } else if (field.type === "video") {
-                  if (field.embedUrl) {
-                    return `<iframe src="${field.embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
-                  } else {
-                    return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
-                  }
+                  return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
+                }else if (field.type === "iframe"){
+                  return `<iframe src="${field.content}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
                 }
                 return "";
               })
@@ -228,18 +226,22 @@ const StepEditor = ({
                           type,
                           content: content || "",
                           width:
-                            type === "video"
+                            type === "iframe"
                               ? 800
-                              : type === "image"
+                              : type === "video"
                                 ? 800
-                                : undefined,
+                                : type === "image"
+                                  ? 800
+                                  : undefined,
                           height:
-                            type === "video"
+                            type === "iframe"
                               ? 450
-                              : type === "image"
-                                ? 400
-                                : undefined,
-                          ...options,
+                              :type === "video"
+                                ? 450
+                                : type === "image"
+                                  ? 400
+                                  : undefined,
+                            ...options,
                         },
                       ],
                     };
