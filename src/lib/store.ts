@@ -77,109 +77,113 @@ const defaultState = {
   selectedProjectId: "1",
 };
 
-export const useProjectStore = create<ProjectStore>(
-  persist(
-    (set, get) => ({
-      ...defaultState,
-      setSelectedProject: (id) => set({ selectedProjectId: id }),
-      updateProjectSteps: async (projectId, steps) => {
-        const state = get();
-        const project = state.projects.find((p) => p.id === projectId);
-        if (project) {
-          const updatedProject = { ...project, steps };
-          await dbHelpers.saveProject(updatedProject);
-          set((state) => ({
-            projects: state.projects.map((p) =>
-              p.id === projectId ? updatedProject : p,
+export const useProjectStore = create<ProjectStore>((set, get) => ({
+  ...defaultState,
+
+  setSelectedProject: (id) => set({ selectedProjectId: id }),
+
+  updateProjectSteps: async (projectId, steps) => {
+    const state = get();
+    const project = state.projects.find((p) => p.id === projectId);
+    if (project) {
+      const updatedProject = { ...project, steps };
+      await dbHelpers.saveProject(updatedProject);
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.id === projectId ? updatedProject : p,
+        ),
+      }));
+    }
+  },
+
+  updateProjectName: async (projectId, name) => {
+    const state = get();
+    const project = state.projects.find((p) => p.id === projectId);
+    if (project) {
+      const updatedProject = { ...project, name };
+      await dbHelpers.saveProject(updatedProject);
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.id === projectId ? updatedProject : p,
+        ),
+      }));
+    }
+  },
+
+  createProject: async () => {
+    const newProject = {
+      id: Date.now().toString(),
+      name: "New Project",
+      steps: [
+        {
+          id: "1",
+          fields: [
+            createStepField("f12", "title", "Getting Started"),
+            createStepField(
+              "f13",
+              "text",
+              "Begin documenting your project...",
             ),
-          }));
-        }
-      },
-      updateProjectName: async (projectId, name) => {
-        const state = get();
-        const project = state.projects.find((p) => p.id === projectId);
-        if (project) {
-          const updatedProject = { ...project, name };
-          await dbHelpers.saveProject(updatedProject);
-          set((state) => ({
-            projects: state.projects.map((p) =>
-              p.id === projectId ? updatedProject : p,
-            ),
-          }));
-        }
-      },
-      createProject: async () => {
-        const newProject = {
-          id: Date.now().toString(),
-          name: "New Project",
-          steps: [
-            {
-              id: "1",
-              fields: [
-                createStepField("f12", "title", "Getting Started"),
-                createStepField(
-                  "f13",
-                  "text",
-                  "Begin documenting your project...",
-                ),
-              ],
-            },
           ],
-        };
-        await dbHelpers.saveProject(newProject);
-        set((state) => ({
-          projects: [...state.projects, newProject],
-          selectedProjectId: newProject.id,
-        }));
-      },
-      deleteProject: async (id) => {
-        await dbHelpers.deleteProject(id);
-        set((state) => ({
-          projects: state.projects.filter((p) => p.id !== id),
-          selectedProjectId:
-            state.selectedProjectId === id
-              ? state.projects[0]?.id || ""
-              : state.selectedProjectId,
-        }));
-      },
-      exportProject: (id) => {
-        const state = get();
-        const project = state.projects.find((p) => p.id === id);
-        if (!project) return;
+        },
+      ],
+    };
+    await dbHelpers.saveProject(newProject);
+    set((state) => ({
+      projects: [...state.projects, newProject],
+      selectedProjectId: newProject.id,
+    }));
+  },
 
-        const projectData = {
-          version: "1.0",
-          metadata: {
-            name: project.name,
-            updatedAt: new Date().toISOString(),
-          },
-          content: {
-            steps: project.steps,
-          },
-        };
+  deleteProject: async (id) => {
+    await dbHelpers.deleteProject(id);
+    set((state) => ({
+      projects: state.projects.filter((p) => p.id !== id),
+      selectedProjectId:
+        state.selectedProjectId === id
+          ? state.projects[0]?.id || ""
+          : state.selectedProjectId,
+    }));
+  },
 
-        const htmlContent = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="UTF-8">
-              <title>${project.name}</title>
-              <script src="https://cdn.tailwindcss.com"></script>
-              <style>
-                body { margin: 0; padding: 20px; font-family: system-ui, sans-serif; }
-                .prose { max-width: 8.5in; margin: auto; }
-                img, video { max-width: 100%; height: auto; border-radius: 0.5rem; }
-              </style>
-              <script type="application/json" id="tempo-project-data">
-                ${JSON.stringify(projectData)}
-              </script>
-            </head>
-            <body>
-              <div class="prose">
-                <h1 class="text-3xl font-bold mb-8">${project.name}</h1>
-                ${project.steps
-                  .map(
-                    (step) => `
+  exportProject: (id) => {
+    const state = get();
+    const project = state.projects.find((p) => p.id === id);
+    if (!project) return;
+
+    const projectData = {
+      version: "1.0",
+      metadata: {
+        name: project.name,
+        updatedAt: new Date().toISOString(),
+      },
+      content: {
+        steps: project.steps,
+      },
+    };
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${project.name}</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+            body { margin: 0; padding: 20px; font-family: system-ui, sans-serif; }
+            .prose { max-width: 8.5in; margin: auto; }
+            img, video { max-width: 100%; height: auto; border-radius: 0.5rem; }
+          </style>
+          <script type="application/json" id="tempo-project-data">
+            ${JSON.stringify(projectData)}
+          </script>
+        </head>
+        <body>
+          <div class="prose">
+            <h1 class="text-3xl font-bold mb-8">${project.name}</h1>
+            ${project.steps
+              .map(
+                (step) => `
                   <div class="mb-8">
                     ${step.fields
                       .map((field) => {
@@ -190,56 +194,56 @@ export const useProjectStore = create<ProjectStore>(
                         } else if (field.type === "image") {
                           return `<img src="${field.content}" alt="Step" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
                         } else if (field.type === "video") {
-                          if (field.embedUrl) {
-                            return `<iframe src="${field.embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
-                          } else {
-                            return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
-                          }
+                          return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
+                        } else if (field.type === "iframe"){
+                          return `<iframe src="${field.embedUrl}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
                         }
                         return "";
                       })
                       .join("")}
                   </div>
                 `,
-                  )
-                  .join("")}
-              </div>
-            </body>
-          </html>
-        `;
+              )
+              .join("")
+            }
+          </body>
+        </html>
+    `;
 
-        const blob = new Blob([htmlContent], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${project.name.toLowerCase().replace(/\s+/g, "-")}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      },
-      importProject: async (projectData) => {
-        const newProject = {
-          id: Date.now().toString(),
-          name: projectData.name,
-          steps: projectData.steps,
-        };
-        await dbHelpers.saveProject(newProject);
-        set((state) => ({
-          projects: [...state.projects, newProject],
-          selectedProjectId: newProject.id,
-        }));
-      },
-      resetToDefault: async () => {
-        await dbHelpers.clearAllData();
-        set(defaultState);
-      },
-    }),
-    {
-      name: "project-ui-storage",
-      partialize: (state) => ({
-        selectedProjectId: state.selectedProjectId,
-      }),
-    },
-  ),
-);
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.name.toLowerCase().replace(/\s+/g, "-")}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importProject: async (projectData) => {
+    const newProject = {
+      id: Date.now().toString(),
+      name: projectData.name,
+      steps: projectData.steps,
+    };
+    await dbHelpers.saveProject(newProject);
+    set((state) => ({
+      projects: [...state.projects, newProject],
+      selectedProjectId: newProject.id,
+    }));
+  },
+
+  resetToDefault: async () => {
+    await dbHelpers.clearAllData();
+    set(defaultState);
+  },
+}));
+
+
+const persistedStore = persist(useProjectStore, {
+  name: "project-ui-storage",
+  partialize: (state: ProjectStore) => ({
+    selectedProjectId: state.selectedProjectId,
+  }),
+});

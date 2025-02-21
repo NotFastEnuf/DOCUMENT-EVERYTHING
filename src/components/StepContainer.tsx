@@ -133,21 +133,42 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   >
                     <div className="relative w-full h-full">
                       <div className="absolute inset-0">
-                        {field.embedUrl ? (
-                          <iframe
-                            src={field.embedUrl}
-                            className="w-full h-full rounded-lg pointer-events-none"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
-                            allowFullScreen
-                          />
-                        ) : (
-                          <video
-                            src={field.content}
-                            controls
-                            className="w-full h-full rounded-lg pointer-events-none"
-                          />
-                        )}
+
+                        <video
+                          src={field.content}
+                          controls
+                          className="w-full h-full rounded-lg pointer-events-none"
+                        />
+                      </div>
+                    </div>
+                  </ResizableBox>
+                )}
+
+                {field.type === "iframe" && (
+                  <ResizableBox
+                    width={field.width || 800}
+                    height={field.height || 450}
+                    maxConstraints={[800, 1200]}
+                    onResize={(e, { size }) => {
+                      const updatedFields = [...fields];
+                      updatedFields[index] = {
+                        ...field,
+                        width: Math.min(size.width, 800),
+                        height: size.height,
+                      };
+                      onFieldsChange(updatedFields);
+                    }}
+                    resizeHandles={["se"]}
+                  >
+                    <div className="relative w-full h-full">
+                      <div className="absolute inset-0">
+                        <iframe
+                          src={field.content}
+                          className="w-full h-full rounded-lg pointer-events-none"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
+                          allowFullScreen
+                        />
                       </div>
                     </div>
                   </ResizableBox>
@@ -213,7 +234,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   className="flex items-center gap-2"
                   onClick={() => {
                     const url = prompt(
-                      "Enter video URL (YouTube, direct link, etc):",
+                      "Enter link URL (YouTube, direct link, etc):",
                     );
                     if (url) {
                       let embedUrl = url;
@@ -229,7 +250,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                           .split("?")[0];
                         embedUrl = `https://player.vimeo.com/video/${videoId}`;
                       }
-                      onAddField("video", embedUrl);
+                      onAddField("iframe", embedUrl);
                     }
                   }}
                 >
