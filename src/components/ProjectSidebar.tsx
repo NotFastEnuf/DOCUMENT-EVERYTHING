@@ -21,6 +21,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+
+import { Project, Step } from "@/lib/types";
+import { useProjectStore } from "@/lib/store";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,9 +33,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "./ui/alert-dialog";
-
-import { Project, Step } from "@/lib/types";
 
 interface ProjectSidebarProps {
   projects?: Project[];
@@ -67,7 +69,7 @@ const ProjectSidebar = ({
     const text = await file.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(text, "text/html");
-  
+
     const scriptTag = doc.getElementById("tempo-project-data");
     if (scriptTag) {
       try {
@@ -241,10 +243,35 @@ const ProjectSidebar = ({
       </ScrollArea>
       <Separator />
       <div className="p-4">
-        <Button variant="ghost" className="w-full justify-start gap-2">
-          <Settings className="h-4 w-4" />
-          Settings
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset Application</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will reset the application to its default state. All your
+                projects and changes will be lost. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-500 hover:bg-red-600"
+                onClick={() => {
+                  useProjectStore.getState().resetToDefault();
+                  window.location.reload();
+                }}
+              >
+                Reset
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <AlertDialog
         open={!!projectToDelete}

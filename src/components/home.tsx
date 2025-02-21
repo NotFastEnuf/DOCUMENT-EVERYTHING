@@ -1,10 +1,12 @@
 import React from "react";
+import { useInitializeProjects } from "@/lib/hooks";
 import ProjectSidebar from "./ProjectSidebar";
 import StepEditor from "./StepEditor";
 import { useProjectStore } from "@/lib/store";
 import Banner from "./Banner";
 
 const Home = () => {
+  useInitializeProjects();
   const {
     projects,
     selectedProjectId,

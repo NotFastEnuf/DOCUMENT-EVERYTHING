@@ -19,3 +19,16 @@ export interface Project {
   name: string;
   steps: Step[];
 }
+
+export interface ProjectStore {
+  projects: Project[];
+  selectedProjectId: string;
+  setSelectedProject: (id: string) => void;
+  updateProjectSteps: (projectId: string, steps: Step[]) => void;
+  updateProjectName: (projectId: string, name: string) => void;
+  createProject: () => void;
+  deleteProject: (id: string) => void;
+  exportProject: (id: string) => void;
+  importProject: (projectData: { name: string; steps: Step[] }) => void;
+  resetToDefault: () => void;
+}
