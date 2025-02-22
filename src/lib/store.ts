@@ -40,7 +40,7 @@ const defaultState = {
   projects: [
     {
       id: "1",
-      name: "Getting Started Guide",
+      name: "Getting Started",
       steps: [
         {
           id: "1",
@@ -49,14 +49,14 @@ const defaultState = {
             createStepField(
               "f2",
               "text",
-              "This guide will help you create detailed project documentation with step-by-step instructions.",
+              "This quick start will help you create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML."
             ),
             createStepField(
               "f3",
               "image",
               "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
               800,
-              400,
+              400
             ),
           ],
         },
@@ -67,7 +67,52 @@ const defaultState = {
             createStepField(
               "f5",
               "text",
-              "Click the 'Add Slide' button to create a new slide. Each slide can include text and images.",
+              "Click the 'Add Slide' button to create a new slide. Each slide can include text and interactive media."
+            ),
+          ],
+        },
+        {
+          id: "3",
+          fields: [
+            createStepField("f6", "title", "Organizing Slides"),
+            createStepField(
+              "f7",
+              "text",
+              "Drag and drop slides to reorder them. Use the grip handle on the left to move slides around."
+            ),
+          ],
+        },
+        {
+          id: "4",
+          fields: [
+            createStepField("f8", "title", "Adding Media"),
+            createStepField(
+              "f9",
+              "text",
+              "Enhance your documentation by adding media to each slide using the 'Encode Media' or 'Embed Media' buttons.  Encoded videos or images will be available for offline presentation.  Embedded media will be interactive online!"
+            ),
+          ],
+        },
+        {
+          id: "5",
+          fields: [
+            createStepField("f10", "title", "Previewing and Exporting"),
+            createStepField(
+              "f11",
+              "text",
+              "Use the 'Preview' button to see how your documentation will look, and export it when you're ready."
+            ),
+          ],
+        },
+
+        {
+          id: "6",
+          fields: [
+            createStepField("f12", "title", "Returning and Revising"),
+            createStepField(
+              "f13",
+              "text",
+              "Start documenting every new project with the '+ New Project' button and manage all your 'Document-Everything' projects using the 'Import Project' button.  Use the 'Settings' button to reset persistant memory when you'd like to start with a blank slate."
             ),
           ],
         },

@@ -27,7 +27,7 @@ const StepEditor = ({
         {
           id: "f2",
           type: "text",
-          content: "Begin by gathering your materials...",
+          content: "Create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML.",
         },
         {
           id: "f3",
@@ -36,21 +36,6 @@ const StepEditor = ({
             "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
           width: 800,
           height: 400,
-        },
-      ],
-    },
-    {
-      id: "2",
-      fields: [
-        {
-          id: "f4",
-          type: "title",
-          content: "First Step",
-        },
-        {
-          id: "f5",
-          type: "text",
-          content: "Follow these instructions carefully...",
         },
       ],
     },
