@@ -7,8 +7,8 @@ interface ProjectStore {
   projects: Project[];
   selectedProjectId: string;
   setSelectedProject: (id: string) => void;
-  updateProjectSteps: (projectId: string, steps: Step[]) => Promise<void>;
-  updateProjectName: (projectId: string, name: string) => Promise<void>;
+  updateProjectSteps: (projectId: string, steps: Step[]) => void; // Mark as non-async
+  updateProjectName: (projectId: string, name: string) => void;
   createProject: () => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   exportProject: (id: string) => void;
@@ -127,32 +127,57 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   setSelectedProject: (id) => set({ selectedProjectId: id }),
 
-  updateProjectSteps: async (projectId, steps) => {
-    const state = get();
-    const project = state.projects.find((p) => p.id === projectId);
-    if (project) {
-      const updatedProject = { ...project, steps };
-      await dbHelpers.saveProject(updatedProject);
-      set((state) => ({
-        projects: state.projects.map((p) =>
-          p.id === projectId ? updatedProject : p,
-        ),
-      }));
-    }
+    updateProjectSteps: (projectId, steps) => {
+    // 1. Optimistically update the UI
+    set((state) => {
+      return {
+        ...state, // Copy existing state
+        projects: state.projects.map((project) => {
+          if (project.id === projectId) {
+            // Create a new project object with updated steps
+            return {
+              ...project,
+              steps: [...steps], // Ensure steps is also copied
+            };
+          }
+          return project; // Return other projects unchanged
+        }),
+      };
+    });
+
+    // 2. Persist to IndexedDB (in the background, no await)
+    dbHelpers
+      .saveProject({
+        ...get().projects.find((p) => p.id === projectId)!, // Get the full project state, not just steps
+        steps: steps,
+      })
+      .catch((error) => {
+        console.error("Failed to save to IndexedDB, reverting state", error);
+        // Implement some kind of state versioning for reliable revert
+        // Consider implementing a way to revert the steps to the previous known version
+      });
   },
 
-  updateProjectName: async (projectId, name) => {
-    const state = get();
-    const project = state.projects.find((p) => p.id === projectId);
-    if (project) {
-      const updatedProject = { ...project, name };
-      await dbHelpers.saveProject(updatedProject);
-      set((state) => ({
-        projects: state.projects.map((p) =>
-          p.id === projectId ? updatedProject : p,
-        ),
-      }));
-    }
+  updateProjectName: (projectId, name) => {
+    // 1. Optimistically update the UI
+    set((state) => ({
+      ...state,
+      projects: state.projects.map((project) =>
+        project.id === projectId ? { ...project, name } : project,
+      ),
+    }));
+  
+    // 2. Persist to IndexedDB (in the background, no await)
+    dbHelpers
+      .saveProject({
+        ...get().projects.find((p) => p.id === projectId)!,
+        name: name,
+      })
+      .catch((error) => {
+        console.error("Failed to save to IndexedDB, reverting state", error);
+        // Implement a revert mechanism here to restore the previous name
+        //  if the save fails
+      });
   },
 
   createProject: async () => {
@@ -179,7 +204,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       selectedProjectId: newProject.id,
     }));
   },
-
   deleteProject: async (id) => {
     await dbHelpers.deleteProject(id);
     set((state) => ({
@@ -265,7 +289,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   },
-
   importProject: async (projectData) => {
     const newProject = {
       id: Date.now().toString(),
@@ -284,7 +307,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     set(defaultState);
   },
 }));
-
 
 const persistedStore = persist(useProjectStore, {
   name: "project-ui-storage",
