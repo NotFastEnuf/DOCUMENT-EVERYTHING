@@ -165,7 +165,8 @@ const ProjectSidebar = ({
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {project.steps.length} slides
+                      {project.steps.length}{" "}
+                      {project.steps.length === 1 ? "slide" : "slides"}
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
