@@ -49,14 +49,14 @@ const defaultState = {
             createStepField(
               "f2",
               "text",
-              "This quick start will help you create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML."
+              "This quick start will help you create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML.",
             ),
             createStepField(
               "f3",
               "image",
               "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
               800,
-              400
+              400,
             ),
           ],
         },
@@ -67,7 +67,7 @@ const defaultState = {
             createStepField(
               "f5",
               "text",
-              "Click the 'Add Slide' button to create a new slide. Each slide can include text and interactive media."
+              "Click the 'Add Slide' button to create a new slide. Each slide can include text and interactive media.",
             ),
           ],
         },
@@ -78,7 +78,7 @@ const defaultState = {
             createStepField(
               "f7",
               "text",
-              "Drag and drop slides to reorder them. Use the grip handle on the left to move slides around."
+              "Drag and drop slides to reorder them. Use the grip handle on the left to move slides around.",
             ),
           ],
         },
@@ -89,7 +89,7 @@ const defaultState = {
             createStepField(
               "f9",
               "text",
-              "Enhance your documentation by adding media to each slide using the 'Encode Media' or 'Embed Media' buttons.  Encoded videos or images will be available for offline presentation.  Embedded media will be interactive online!"
+              "Enhance your documentation by adding media to each slide using the 'Encode Media' or 'Embed Media' buttons.  Encoded videos or images will be available for offline presentation.  Embedded media will be interactive online!",
             ),
           ],
         },
@@ -100,7 +100,7 @@ const defaultState = {
             createStepField(
               "f11",
               "text",
-              "Use the 'Preview' button to see how your documentation will look, and export it when you're ready."
+              "Use the 'Preview' button to see how your documentation will look, and export it when you're ready.",
             ),
           ],
         },
@@ -112,14 +112,14 @@ const defaultState = {
             createStepField(
               "f13",
               "text",
-              "Start documenting every new project with the '+ New Project' button and manage all your 'Document-Everything' projects using the 'Import Project' button.  Use the 'Settings' button to reset persistant memory when you'd like to start with a blank slate."
+              "Start documenting every new project with the '+ New Project' button and manage all your 'Document-Everything' projects using the 'Import Project' button.  Use the 'Settings' button to reset persistant memory when you'd like to start with a blank slate.",
             ),
           ],
         },
       ],
     },
   ],
-  selectedProjectId: "1",
+  selectedProjectId: "1", // Default to first project if it exists
 };
 
 export const useProjectStore = create<ProjectStore>((set, get) => ({
@@ -127,7 +127,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   setSelectedProject: (id) => set({ selectedProjectId: id }),
 
-    updateProjectSteps: (projectId, steps) => {
+  updateProjectSteps: (projectId, steps) => {
     // 1. Optimistically update the UI
     set((state) => {
       return {
@@ -166,7 +166,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         project.id === projectId ? { ...project, name } : project,
       ),
     }));
-  
+
     // 2. Persist to IndexedDB (in the background, no await)
     dbHelpers
       .saveProject({
@@ -189,11 +189,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
           id: "1",
           fields: [
             createStepField("f12", "title", "Getting Started"),
-            createStepField(
-              "f13",
-              "text",
-              "Begin documenting your project...",
-            ),
+            createStepField("f13", "text", "Begin documenting your project..."),
           ],
         },
       ],
@@ -206,13 +202,28 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
   deleteProject: async (id) => {
     await dbHelpers.deleteProject(id);
-    set((state) => ({
-      projects: state.projects.filter((p) => p.id !== id),
-      selectedProjectId:
-        state.selectedProjectId === id
-          ? state.projects[0]?.id || ""
-          : state.selectedProjectId,
-    }));
+    set((state) => {
+      const filteredProjects = state.projects.filter((p) => p.id !== id);
+      const isCurrentProjectDeleted = state.selectedProjectId === id;
+
+      // If we deleted the current project, try to select the next available one
+      let newSelectedId = state.selectedProjectId;
+      if (isCurrentProjectDeleted && filteredProjects.length > 0) {
+        // Find the index of the deleted project
+        const deletedIndex = state.projects.findIndex((p) => p.id === id);
+        // Try to select the next project, or the last one if we deleted the last project
+        const nextIndex = Math.min(deletedIndex, filteredProjects.length - 1);
+        newSelectedId = filteredProjects[nextIndex].id;
+      } else if (isCurrentProjectDeleted) {
+        // If no projects left, clear the selection
+        newSelectedId = "";
+      }
+
+      return {
+        projects: filteredProjects,
+        selectedProjectId: newSelectedId,
+      };
+    });
   },
 
   exportProject: (id) => {
@@ -264,7 +275,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
                           return `<img src="${field.content}" alt="Step" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
                         } else if (field.type === "video") {
                           return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
-                        } else if (field.type === "iframe"){
+                        } else if (field.type === "iframe") {
                           return `<iframe src="${field.embedUrl}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
                         }
                         return "";
@@ -273,8 +284,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
                   </div>
                 `,
               )
-              .join("")
-            }
+              .join("")}
           </body>
         </html>
     `;

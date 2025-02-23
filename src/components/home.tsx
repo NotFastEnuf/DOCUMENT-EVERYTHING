@@ -18,6 +18,13 @@ const Home = () => {
     deleteProject,
     exportProject,
   } = useProjectStore();
+
+  // Set first project as selected if we have projects but no selection
+  React.useEffect(() => {
+    if (projects.length > 0 && !selectedProjectId) {
+      setSelectedProject(projects[0].id);
+    }
+  }, [projects, selectedProjectId, setSelectedProject]);
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   const handleSlideClick = (slideId: string) => {
@@ -43,17 +50,30 @@ const Home = () => {
           onExportProject={exportProject}
         />
         <div className="flex-1 overflow-hidden">
-          <StepEditor
-            steps={selectedProject?.steps}
-            projectName={selectedProject?.name}
-            onStepsChange={(steps) =>
-              updateProjectSteps(selectedProjectId, steps)
-            }
-            onSlideClick={handleSlideClick}
-            onProjectNameChange={(name) =>
-              updateProjectName(selectedProjectId, name)
-            }
-          />
+          {selectedProject ? (
+            <StepEditor
+              steps={selectedProject.steps}
+              projectName={selectedProject.name}
+              onStepsChange={(steps) =>
+                updateProjectSteps(selectedProjectId, steps)
+              }
+              onSlideClick={handleSlideClick}
+              onProjectNameChange={(name) =>
+                updateProjectName(selectedProjectId, name)
+              }
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center bg-gray-50">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  No project to display
+                </h2>
+                <p className="text-gray-600">
+                  Please add a new project to get started
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
