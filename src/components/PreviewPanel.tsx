@@ -17,7 +17,7 @@ const PreviewPanel = ({
 
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
-      <Card className="w-full h-full max-w-6xl mx-auto my-4 p-4 bg-white shadow-lg">
+      <Card className="w-full h-full max-w-6xl mx-auto my-0 md:my-4 p-2 md:p-4 bg-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <Eye className="w-5 h-5 text-muted-foreground" />

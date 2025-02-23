@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useInitializeProjects } from "@/lib/hooks";
 import ProjectSidebar from "./ProjectSidebar";
 import StepEditor from "./StepEditor";
@@ -7,6 +7,7 @@ import Banner from "./Banner";
 
 const Home = () => {
   useInitializeProjects();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const {
     projects,
     selectedProjectId,
@@ -36,20 +37,31 @@ const Home = () => {
 
   return (
     <div className="flex flex-col h-screen w-full bg-background">
-      <Banner />
+      <Banner onMenuClick={() => setIsSidebarOpen(true)} />
 
       <div className="flex h-screen overflow-hidden">
-        <ProjectSidebar
-          projects={projects}
-          selectedProjectId={selectedProjectId}
-          onProjectSelect={setSelectedProject}
-          onNewProject={createProject}
-          onImport={importProject}
-          onSlideClick={handleSlideClick}
-          onDeleteProject={deleteProject}
-          onExportProject={exportProject}
+        <div
+          className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-30 md:hidden transition-opacity ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          onClick={() => setIsSidebarOpen(false)}
         />
-        <div className="flex-1 overflow-hidden">
+        <div
+          className={`fixed md:static inset-y-0 left-0 z-40 w-80 transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        >
+          <ProjectSidebar
+            projects={projects}
+            selectedProjectId={selectedProjectId}
+            onProjectSelect={(id) => {
+              setSelectedProject(id);
+              setIsSidebarOpen(false);
+            }}
+            onNewProject={createProject}
+            onImport={importProject}
+            onSlideClick={handleSlideClick}
+            onDeleteProject={deleteProject}
+            onExportProject={exportProject}
+          />
+        </div>
+        <div className="flex-1 overflow-hidden w-full">
           {selectedProject ? (
             <StepEditor
               steps={selectedProject.steps}
@@ -64,7 +76,7 @@ const Home = () => {
             />
           ) : (
             <div className="h-full flex items-center justify-center bg-gray-50">
-              <div className="text-center">
+              <div className="text-center px-4">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
                   No project to display
                 </h2>

@@ -27,7 +27,8 @@ const StepEditor = ({
         {
           id: "f2",
           type: "text",
-          content: "Create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML.",
+          content:
+            "Create and maintain detailed project documentation, step-by-step instructions, or interactive slide shows as HTML.",
         },
         {
           id: "f3",
@@ -68,7 +69,7 @@ const StepEditor = ({
     };
     const updatedSteps = [...steps, newStep];
     onStepsChange(updatedSteps);
-  
+
     // Scroll to the new step and the add button
     setTimeout(() => {
       const newStepEl = stepRefs.current[newStep.id];
@@ -77,7 +78,6 @@ const StepEditor = ({
       }
     }, 100);
   };
-  
 
   const deleteStep = (index: number) => {
     const updatedSteps = steps.filter((_, i) => i !== index);
@@ -133,7 +133,7 @@ const StepEditor = ({
                   return `<img src="${field.content}" alt="Step ${index + 1}" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
                 } else if (field.type === "video") {
                   return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
-                }else if (field.type === "iframe"){
+                } else if (field.type === "iframe") {
                   return `<iframe src="${field.content}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
                 }
                 return "";
@@ -152,7 +152,7 @@ const StepEditor = ({
     <div className="h-full bg-gray-50">
       <ScrollArea className="h-full">
         <div className="p-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full max-w-5xl mx-auto px-4 md:px-6">
             <div className="flex justify-between items-center mb-6">
               <textarea
                 value={projectName}
@@ -221,12 +221,12 @@ const StepEditor = ({
                           height:
                             type === "iframe"
                               ? 450
-                              :type === "video"
+                              : type === "video"
                                 ? 450
                                 : type === "image"
                                   ? 400
                                   : undefined,
-                            ...options,
+                          ...options,
                         },
                       ],
                     };

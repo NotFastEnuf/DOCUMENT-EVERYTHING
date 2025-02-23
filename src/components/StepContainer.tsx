@@ -33,15 +33,32 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
       onDragEnd = () => {},
       onDrop = () => {},
       onDragOver = () => {},
-      //onTitleChange = () => {},
-      //onContentChange = () => {},
     },
     ref,
   ) => {
+    const [containerWidth, setContainerWidth] = React.useState(0);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+      const updateWidth = () => {
+        if (containerRef.current) {
+          setContainerWidth(containerRef.current.offsetWidth - 32); // Subtract padding
+        }
+      };
+
+      updateWidth();
+      window.addEventListener("resize", updateWidth);
+      return () => window.removeEventListener("resize", updateWidth);
+    }, []);
+
     return (
       <Card
-        ref={ref}
-        className="w-full p-4 mb-4 bg-white border shadow-sm scroll-mt-24"
+        ref={(el) => {
+          if (typeof ref === "function") ref(el);
+          else if (ref) ref.current = el;
+          containerRef.current = el;
+        }}
+        className="w-full max-w-full p-4 mb-4 bg-white border shadow-sm scroll-mt-24 overflow-hidden"
         onDrop={onDrop}
         onDragOver={onDragOver}
         id={`slide-${id}`}
@@ -56,13 +73,13 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
             <GripVertical className="h-6 w-6 text-gray-400" />
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {fields.map((field, index) => (
               <div key={field.id} className="relative mb-4 group">
                 {field.type === "title" && (
                   <Textarea
                     placeholder="Slide Title"
-                    className="text-xl font-semibold bg-transparent border-none hover:bg-gray-50 transition-colors"
+                    className="text-xl font-semibold bg-transparent border-none hover:bg-gray-50 transition-colors w-full"
                     value={field.content}
                     onChange={(e) => {
                       const updatedFields = [...fields];
@@ -93,14 +110,14 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
 
                 {field.type === "image" && (
                   <ResizableBox
-                    width={field.width || 800}
+                    width={field.width || containerWidth}
                     height={field.height || 400}
-                    maxConstraints={[800, 1200]}
+                    maxConstraints={[containerWidth, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        width: Math.min(size.width, 800),
+                        width: Math.min(size.width, containerWidth),
                         height: size.height,
                       };
                       onFieldsChange(updatedFields);
@@ -117,14 +134,14 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
 
                 {field.type === "video" && (
                   <ResizableBox
-                    width={field.width || 800}
+                    width={field.width || containerWidth}
                     height={field.height || 450}
-                    maxConstraints={[800, 1200]}
+                    maxConstraints={[containerWidth, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        width: Math.min(size.width, 800),
+                        width: Math.min(size.width, containerWidth),
                         height: size.height,
                       };
                       onFieldsChange(updatedFields);
@@ -133,7 +150,6 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   >
                     <div className="relative w-full h-full">
                       <div className="absolute inset-0">
-
                         <video
                           src={field.content}
                           controls
@@ -146,14 +162,14 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
 
                 {field.type === "iframe" && (
                   <ResizableBox
-                    width={field.width || 800}
+                    width={field.width || containerWidth}
                     height={field.height || 450}
-                    maxConstraints={[800, 1200]}
+                    maxConstraints={[containerWidth, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        width: Math.min(size.width, 800),
+                        width: Math.min(size.width, containerWidth),
                         height: size.height,
                       };
                       onFieldsChange(updatedFields);
@@ -185,8 +201,8 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
               </div>
             ))}
 
-            <div className="flex justify-between items-center">
-              <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 items-center justify-between">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="outline"
                   size="sm"
