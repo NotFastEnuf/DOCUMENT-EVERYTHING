@@ -13,7 +13,7 @@ const Banner = ({ onMenuClick }: BannerProps) => {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden text-primary-foreground hover:text-primary-foreground/80"
+          className="xl:hidden text-primary-foreground hover:text-primary-foreground/80"
           onClick={onMenuClick}
         >
           <Menu className="h-5 w-5" />

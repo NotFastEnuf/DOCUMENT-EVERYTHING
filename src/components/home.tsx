@@ -41,11 +41,11 @@ const Home = () => {
 
       <div className="flex h-screen overflow-hidden">
         <div
-          className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-30 md:hidden transition-opacity ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-30 xl:hidden transition-opacity ${isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
           onClick={() => setIsSidebarOpen(false)}
         />
         <div
-          className={`fixed md:static inset-y-0 left-0 z-40 w-80 transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+          className={`fixed xl:static inset-y-0 left-0 z-40 w-80 transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"}`}
         >
           <ProjectSidebar
             projects={projects}
