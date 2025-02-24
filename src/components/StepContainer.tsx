@@ -17,7 +17,11 @@ interface StepContainerProps {
   onDragOver?: (e: React.DragEvent) => void;
   onFieldsChange?: (fields: StepField[]) => void;
   onFieldDelete?: (fieldId: string) => void;
-  onAddField?: (type: StepField["type"], content?: string) => void;
+  onAddField?: (
+    type: StepField["type"],
+    content?: string,
+    options?: { width?: number; height?: number },
+  ) => void;
 }
 
 const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
@@ -153,7 +157,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                         <video
                           src={field.content}
                           controls
-                          className="w-full h-full rounded-lg pointer-events-none"
+                          className="w-full h-full rounded-lg"
                         />
                       </div>
                     </div>
@@ -178,13 +182,29 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   >
                     <div className="relative w-full h-full">
                       <div className="absolute inset-0">
-                        <iframe
-                          src={field.content}
-                          className="w-full h-full rounded-lg pointer-events-none"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
-                          allowFullScreen
-                        />
+                        {field.content.startsWith("data:application/pdf") ? (
+                          <object
+                            data={field.content}
+                            type="application/pdf"
+                            className="w-full h-full rounded-lg"
+                          >
+                            <p>PDF cannot be displayed</p>
+                          </object>
+                        ) : field.content.startsWith("data:audio/") ? (
+                          <audio
+                            controls
+                            src={field.content}
+                            className="w-full rounded-lg"
+                          />
+                        ) : (
+                          <iframe
+                            src={field.content}
+                            className="w-full h-full rounded-lg"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
+                            allowFullScreen
+                          />
+                        )}
                       </div>
                     </div>
                   </ResizableBox>
@@ -214,7 +234,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                 </Button>
                 <input
                   type="file"
-                  accept="image/*,video/*,audio/*"
+                  accept="image/*,video/*,audio/*,application/pdf"
                   className="hidden"
                   id={`media-upload-${id}`}
                   onChange={(e) => {
@@ -228,10 +248,14 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                         } else if (file.type.startsWith("video/")) {
                           onAddField("video", result);
                         } else if (file.type.startsWith("audio/")) {
-                          // Create an audio element wrapped in a div
                           onAddField("iframe", result, {
                             width: 400, // Default width for audio player
                             height: 50, // Default height for audio player
+                          });
+                        } else if (file.type === "application/pdf") {
+                          onAddField("iframe", result, {
+                            width: 800, // Default width for PDF viewer
+                            height: 600, // Default height for PDF viewer
                           });
                         }
                       };
@@ -293,9 +317,15 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                           } else if (contentType.startsWith("video/")) {
                             onAddField("video", url);
                           } else if (contentType.startsWith("audio/")) {
-                            // Create an audio element wrapped in a div
-                            const audioHtml = `<div class="w-full flex justify-center"><audio controls src="${url}"></audio></div>`;
-                            onAddField("iframe", url);
+                            onAddField("iframe", url, {
+                              width: 400, // Default width for audio player
+                              height: 50, // Default height for audio player
+                            });
+                          } else if (contentType === "application/pdf") {
+                            onAddField("iframe", url, {
+                              width: 800, // Default width for PDF viewer
+                              height: 600, // Default height for PDF viewer
+                            });
                           } else {
                             // Default to iframe for other content types
                             onAddField("iframe", url);
