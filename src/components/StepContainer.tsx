@@ -214,7 +214,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                 </Button>
                 <input
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*,video/*,audio/*"
                   className="hidden"
                   id={`media-upload-${id}`}
                   onChange={(e) => {
@@ -227,6 +227,12 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                           onAddField("image", result);
                         } else if (file.type.startsWith("video/")) {
                           onAddField("video", result);
+                        } else if (file.type.startsWith("audio/")) {
+                          // Create an audio element wrapped in a div
+                          onAddField("iframe", result, {
+                            width: 400, // Default width for audio player
+                            height: 50, // Default height for audio player
+                          });
                         }
                       };
                       reader.readAsDataURL(file);
