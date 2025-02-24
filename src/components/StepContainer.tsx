@@ -248,25 +248,61 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   variant="outline"
                   size="sm"
                   className="flex items-center gap-2"
-                  onClick={() => {
+                  onClick={async () => {
                     const url = prompt(
                       "Enter link URL (YouTube, direct link, etc):",
                     );
                     if (url) {
                       let embedUrl = url;
+
+                      // Handle known video platforms first
                       if (url.includes("youtube.com/watch?v=")) {
                         const videoId = url.split("v=")[1].split("&")[0];
                         embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        onAddField("iframe", embedUrl);
+                        return;
                       } else if (url.includes("youtu.be/")) {
                         const videoId = url.split("youtu.be/")[1].split("?")[0];
                         embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        onAddField("iframe", embedUrl);
+                        return;
                       } else if (url.includes("vimeo.com/")) {
                         const videoId = url
                           .split("vimeo.com/")[1]
                           .split("?")[0];
                         embedUrl = `https://player.vimeo.com/video/${videoId}`;
+                        onAddField("iframe", embedUrl);
+                        return;
                       }
-                      onAddField("iframe", embedUrl);
+
+                      // For other URLs, try to detect content type
+                      try {
+                        const response = await fetch(url, { method: "HEAD" });
+                        const contentType =
+                          response.headers.get("Content-Type");
+
+                        if (contentType) {
+                          if (contentType.startsWith("image/")) {
+                            onAddField("image", url);
+                          } else if (contentType.startsWith("video/")) {
+                            onAddField("video", url);
+                          } else if (contentType.startsWith("audio/")) {
+                            // Create an audio element wrapped in a div
+                            const audioHtml = `<div class="w-full flex justify-center"><audio controls src="${url}"></audio></div>`;
+                            onAddField("iframe", url);
+                          } else {
+                            // Default to iframe for other content types
+                            onAddField("iframe", url);
+                          }
+                        } else {
+                          // If no content type, default to iframe
+                          onAddField("iframe", url);
+                        }
+                      } catch (error) {
+                        console.error("Error checking content type:", error);
+                        // If request fails, default to iframe
+                        onAddField("iframe", url);
+                      }
                     }
                   }}
                 >
