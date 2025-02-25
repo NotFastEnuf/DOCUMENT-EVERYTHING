@@ -112,7 +112,7 @@ const defaultState = {
             createStepField(
               "f13",
               "text",
-              "Start documenting every new project with the '+ New Project' button and manage all your 'Document-Everything' projects using the 'Import Project' button.  Use the 'Settings' button to reset persistant memory when you'd like to start with a blank slate.",
+              "Start documenting every new project with the '+ New Project' button and manage all your 'Document-Everything' projects using the 'Import Project' button.  Use the 'Settings' button to reset persistent memory when you'd like to start with a blank slate.",
             ),
           ],
         },
@@ -284,6 +284,20 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
                 return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
               } else if (field.type === "iframe") {
                 return `<iframe src="${field.content}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
+              } else if (field.type === "link-preview") {
+                return `<a href="${field.content}" target="_blank" rel="noopener noreferrer" class="block w-full rounded-lg border bg-white hover:bg-gray-50 transition-colors mb-4" style="width: ${field.width}px; height: ${field.height}px; text-decoration: none;">
+                  <div class="flex items-center gap-3 p-4 h-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-gray-900 truncate">${field.content}</div>
+                      <div class="text-sm text-gray-500 truncate">Click to open link</div>
+                    </div>
+                  </div>
+                </a>`;
               }
               return "";
             })

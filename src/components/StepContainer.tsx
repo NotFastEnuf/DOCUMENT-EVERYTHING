@@ -6,6 +6,7 @@ import { Textarea } from "./ui/textarea";
 import { StepField } from "@/lib/types";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
+import LinkPreview from "./LinkPreview";
 
 interface StepContainerProps {
   id: string;
@@ -164,10 +165,13 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   </ResizableBox>
                 )}
 
-                {field.type === "iframe" && (
+                {(field.type === "iframe" || field.type === "link-preview") && (
                   <ResizableBox
                     width={field.width || containerWidth}
-                    height={field.height || 450}
+                    height={
+                      field.height ||
+                      (field.type === "link-preview" ? 200 : 450)
+                    }
                     maxConstraints={[containerWidth, 1200]}
                     onResize={(e, { size }) => {
                       const updatedFields = [...fields];
@@ -182,27 +186,35 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                   >
                     <div className="relative w-full h-full">
                       <div className="absolute inset-0">
-                        {field.content.startsWith("data:application/pdf") ? (
-                          <object
-                            data={field.content}
-                            type="application/pdf"
-                            className="w-full h-full rounded-lg"
-                          >
-                            <p>PDF cannot be displayed</p>
-                          </object>
-                        ) : field.content.startsWith("data:audio/") ? (
-                          <audio
-                            controls
-                            src={field.content}
-                            className="w-full rounded-lg"
-                          />
+                        {field.type === "iframe" ? (
+                          field.content.startsWith("data:application/pdf") ? (
+                            <object
+                              data={field.content}
+                              type="application/pdf"
+                              className="w-full h-full rounded-lg"
+                            >
+                              <p>PDF cannot be displayed</p>
+                            </object>
+                          ) : field.content.startsWith("data:audio/") ? (
+                            <audio
+                              controls
+                              src={field.content}
+                              className="w-full rounded-lg"
+                            />
+                          ) : (
+                            <iframe
+                              src={field.content}
+                              className="w-full h-full rounded-lg"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
+                              allowFullScreen
+                            />
+                          )
                         ) : (
-                          <iframe
-                            src={field.content}
-                            className="w-full h-full rounded-lg"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; serial"
-                            allowFullScreen
+                          <LinkPreview
+                            url={field.content}
+                            width={field.width}
+                            height={field.height}
                           />
                         )}
                       </div>
@@ -305,7 +317,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                         return;
                       }
 
-                      // For other URLs, try to detect content type
+                      // For other URLs, try to detect content type and check iframe compatibility
                       try {
                         const response = await fetch(url, { method: "HEAD" });
                         const contentType =
@@ -318,26 +330,60 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                             onAddField("video", url);
                           } else if (contentType.startsWith("audio/")) {
                             onAddField("iframe", url, {
-                              width: 400, // Default width for audio player
-                              height: 50, // Default height for audio player
+                              width: 400,
+                              height: 50,
                             });
                           } else if (contentType === "application/pdf") {
                             onAddField("iframe", url, {
-                              width: 800, // Default width for PDF viewer
-                              height: 600, // Default height for PDF viewer
+                              width: 800,
+                              height: 600,
                             });
                           } else {
-                            // Default to iframe for other content types
-                            onAddField("iframe", url);
+                            // Try to check if URL can be embedded in iframe
+                            try {
+                              const canEmbed = await fetch(url)
+                                .then((res) => {
+                                  const xFrameOptions =
+                                    res.headers.get("X-Frame-Options");
+                                  return (
+                                    !xFrameOptions ||
+                                    (!xFrameOptions.includes("DENY") &&
+                                      !xFrameOptions.includes("SAMEORIGIN"))
+                                  );
+                                })
+                                .catch(() => false);
+
+                              if (canEmbed) {
+                                onAddField("iframe", url);
+                              } else {
+                                // Use link preview instead
+                                onAddField("link-preview", url, {
+                                  width: 800,
+                                  height: 200,
+                                });
+                              }
+                            } catch (error) {
+                              // Default to link preview if iframe check fails
+                              onAddField("link-preview", url, {
+                                width: 800,
+                                height: 200,
+                              });
+                            }
                           }
                         } else {
-                          // If no content type, default to iframe
-                          onAddField("iframe", url);
+                          // If no content type, try link preview
+                          onAddField("link-preview", url, {
+                            width: 800,
+                            height: 200,
+                          });
                         }
                       } catch (error) {
                         console.error("Error checking content type:", error);
-                        // If request fails, default to iframe
-                        onAddField("iframe", url);
+                        // If request fails, use link preview
+                        onAddField("link-preview", url, {
+                          width: 800,
+                          height: 200,
+                        });
                       }
                     }
                   }}

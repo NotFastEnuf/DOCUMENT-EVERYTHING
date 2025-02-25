@@ -1,4 +1,10 @@
-export type StepFieldType = "title" | "text" | "image" | "video" | "iframe";
+export type StepFieldType =
+  | "title"
+  | "text"
+  | "image"
+  | "video"
+  | "iframe"
+  | "link-preview";
 
 export interface StepField {
   id: string;
