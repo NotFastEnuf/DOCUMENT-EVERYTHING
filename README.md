@@ -1,3 +1,9 @@
+NFE Notes:  
+npm install
+npx tsc
+npm run dev
+$env:VITE_BASE_PATH="/YOUR-BASE-PATH/"; npm run build
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
