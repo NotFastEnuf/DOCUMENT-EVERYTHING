@@ -102,10 +102,19 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                     className="w-full min-h-[100px] bg-transparent border-none hover:bg-gray-50 transition-colors"
                     value={field.content}
                     onChange={(e) => {
+                      const value = e.target.value;
+                      // Convert URLs to links
+                      const urlRegex = /(https?:\/\/[^\s]+)/g;
+                      const processedValue = value.replace(
+                        urlRegex,
+                        (url) =>
+                          `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`,
+                      );
+
                       const updatedFields = [...fields];
                       updatedFields[index] = {
                         ...field,
-                        content: e.target.value,
+                        content: processedValue,
                       };
                       onFieldsChange(updatedFields);
                     }}
