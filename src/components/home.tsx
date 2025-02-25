@@ -58,7 +58,10 @@ const Home = () => {
             onImport={importProject}
             onSlideClick={handleSlideClick}
             onDeleteProject={deleteProject}
-            onExportProject={exportProject}
+            onExportProject={(id) => {
+              console.log("Export triggered from home for project:", id);
+              exportProject(id);
+            }}
           />
         </div>
         <div className="flex-1 overflow-hidden w-full">

@@ -115,7 +115,6 @@ const StepEditor = ({
       },
     };
 
-    const projectDataHtml = `<!-- TEMPO_PROJECT_DATA -->${JSON.stringify(projectData)}<!-- END_TEMPO_PROJECT_DATA -->`;
     const contentHtml = `
       <div class="max-w-[8.5in] mx-auto">
         <h1 class="text-3xl font-bold mb-8">${projectName || "Untitled Project"}</h1>
@@ -128,7 +127,13 @@ const StepEditor = ({
                 if (field.type === "title") {
                   return `<h2 class="text-xl font-semibold mb-4">${field.content}</h2>`;
                 } else if (field.type === "text") {
-                  return `<p class="mb-4 whitespace-pre-wrap">${field.content}</p>`;
+                  const urlRegex = /(https?:\/\/[^\s]+)/g;
+                  const contentWithLinks = field.content.replace(
+                    urlRegex,
+                    (url) =>
+                      `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`,
+                  );
+                  return `<p class="mb-4 whitespace-pre-wrap">${contentWithLinks}</p>`;
                 } else if (field.type === "image") {
                   return `<img src="${field.content}" alt="Step ${index + 1}" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
                 } else if (field.type === "video") {
@@ -145,6 +150,7 @@ const StepEditor = ({
           .join("")}
       </div>
     `;
+    const projectDataHtml = `<!-- TEMPO_PROJECT_DATA -->${JSON.stringify(projectData)}<!-- END_TEMPO_PROJECT_DATA -->`;
     return contentHtml + projectDataHtml;
   };
 

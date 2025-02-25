@@ -183,6 +183,11 @@ const ProjectSidebar = ({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
+                            e.preventDefault();
+                            console.log(
+                              "Export clicked for project:",
+                              project.id,
+                            );
                             onExportProject(project.id);
                           }}
                         >

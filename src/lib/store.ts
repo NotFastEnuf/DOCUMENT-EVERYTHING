@@ -227,6 +227,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   },
 
   exportProject: (id) => {
+    console.log("Exporting project:", id);
     const state = get();
     const project = state.projects.find((p) => p.id === id);
     if (!project) return;
@@ -242,62 +243,72 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       },
     };
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>${project.name}</title>
-          <script src="https://cdn.tailwindcss.com"></script>
-          <style>
-            body { margin: 0; padding: 20px; font-family: system-ui, sans-serif; }
-            .prose { max-width: 8.5in; margin: auto; }
-            img, video { max-width: 100%; height: auto; border-radius: 0.5rem; }
-          </style>
-          <script type="application/json" id="tempo-project-data">
-            ${JSON.stringify(projectData)}
-          </script>
-        </head>
-        <body>
-          <div class="prose">
-            <h1 class="text-3xl font-bold mb-8">${project.name}</h1>
-            ${project.steps
-              .map(
-                (step) => `
-                  <div class="mb-8">
-                    ${step.fields
-                      .map((field) => {
-                        if (field.type === "title") {
-                          return `<h2 class="text-xl font-semibold mb-4">${field.content}</h2>`;
-                        } else if (field.type === "text") {
-                          return `<p class="mb-4 whitespace-pre-wrap">${field.content}</p>`;
-                        } else if (field.type === "image") {
-                          return `<img src="${field.content}" alt="Step" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
-                        } else if (field.type === "video") {
-                          return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
-                        } else if (field.type === "iframe") {
-                          return `<iframe src="${field.embedUrl}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
-                        }
-                        return "";
-                      })
-                      .join("")}
-                  </div>
-                `,
-              )
-              .join("")}
-          </body>
-        </html>
-    `;
+    const htmlContent = `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>${project.name}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { margin: 0; padding: 20px; font-family: system-ui, sans-serif; }
+      .prose { max-width: 8.5in; margin: auto; }
+      img, video { max-width: 100%; height: auto; border-radius: 0.5rem; }
+      a { color: #0066cc; text-decoration: underline; }
+    </style>
+    <script type="application/json" id="tempo-project-data">
+      ${JSON.stringify(projectData)}
+    </script>
+  </head>
+  <body>
+    <div class="prose">
+      <h1 class="text-3xl font-bold mb-8">${project.name}</h1>
+      ${project.steps
+        .map(
+          (step) => `
+        <div class="mb-8">
+          ${step.fields
+            .map((field) => {
+              if (field.type === "title") {
+                return `<h2 class="text-xl font-semibold mb-4">${field.content}</h2>`;
+              } else if (field.type === "text") {
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                const contentWithLinks = field.content.replace(
+                  urlRegex,
+                  (url) =>
+                    `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`,
+                );
+                return `<p class="mb-4 whitespace-pre-wrap">${contentWithLinks}</p>`;
+              } else if (field.type === "image") {
+                return `<img src="${field.content}" alt="Step" class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width}px; height: ${field.height}px; object-fit: cover;">`;
+              } else if (field.type === "video") {
+                return `<video src="${field.content}" controls class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></video>`;
+              } else if (field.type === "iframe") {
+                return `<iframe src="${field.content}" frameborder="0" allow="serial; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg mb-4" style="max-width: 100%; width: ${field.width || 800}px; height: ${field.height || 450}px;"></iframe>`;
+              }
+              return "";
+            })
+            .join("")}
+        </div>
+      `,
+        )
+        .join("")}
+    </div>
+  </body>
+</html>`;
 
-    const blob = new Blob([htmlContent], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${project.name.toLowerCase().replace(/\s+/g, "-")}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      const blob = new Blob([htmlContent], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${project.name.toLowerCase().replace(/\s+/g, "-")}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting project:", error);
+    }
   },
   importProject: async (projectData) => {
     const newProject = {
