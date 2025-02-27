@@ -19,12 +19,14 @@ const PreviewPanel = ({
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50">
       <Card className="w-full h-full max-w-6xl mx-auto my-0 md:my-4 p-2 md:p-4 bg-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-xl font-semibold">Documentation Preview</h2>
+            <h2 className="text-xl font-semibold hidden sm:inline-block">
+              Documentation Preview
+            </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -45,11 +47,12 @@ const PreviewPanel = ({
               </Button>
             </div>
 
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => {
-                const htmlContent = `
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  const htmlContent = `
                   <!DOCTYPE html>
                   <html>
                     <head>
@@ -73,31 +76,34 @@ const PreviewPanel = ({
                     </body>
                   </html>
                 `;
-                const blob = new Blob([htmlContent], { type: "text/html" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                const projectName = html.includes("<!-- TEMPO_PROJECT_DATA -->")
-                  ? JSON.parse(
-                      html
-                        .split("<!-- TEMPO_PROJECT_DATA -->")[1]
-                        ?.split("<!-- END_TEMPO_PROJECT_DATA -->")[0],
-                    )?.metadata?.name || "untitled-project"
-                  : "untitled-project";
-                a.download = `${projectName.toLowerCase().replace(/\s+/g, "-")}.html`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}
-            >
-              <Download className="w-4 h-4" />
-              Export HTML
-            </Button>
+                  const blob = new Blob([htmlContent], { type: "text/html" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  const projectName = html.includes(
+                    "<!-- TEMPO_PROJECT_DATA -->",
+                  )
+                    ? JSON.parse(
+                        html
+                          .split("<!-- TEMPO_PROJECT_DATA -->")[1]
+                          ?.split("<!-- END_TEMPO_PROJECT_DATA -->")[0],
+                      )?.metadata?.name || "untitled-project"
+                    : "untitled-project";
+                  a.download = `${projectName.toLowerCase().replace(/\s+/g, "-")}.html`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Download className="w-4 h-4" />
+                Export HTML
+              </Button>
 
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-5 h-5" />
-            </Button>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
