@@ -1,7 +1,16 @@
 import React from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
-import { GripVertical, Trash2, Upload, Type, Globe, X } from "lucide-react";
+import {
+  GripVertical,
+  Trash2,
+  Upload,
+  Type,
+  Globe,
+  X,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { StepField } from "@/lib/types";
 import { ResizableBox } from "react-resizable";
@@ -185,6 +194,34 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                     resizeHandles={["se"]}
                   >
                     <div className="relative w-full h-full">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute top-2 left-2 z-10 bg-white/80 hover:bg-white/90 transition-colors rounded-full w-8 h-8"
+                        onClick={() => {
+                          const updatedFields = [...fields];
+                          updatedFields[index] = {
+                            ...field,
+                            type:
+                              field.type === "iframe"
+                                ? "link-preview"
+                                : "iframe",
+                            height: field.type === "iframe" ? 200 : 450,
+                          };
+                          onFieldsChange(updatedFields);
+                        }}
+                        title={
+                          field.type === "iframe"
+                            ? "Switch to link preview"
+                            : "Switch to iframe"
+                        }
+                      >
+                        {field.type === "iframe" ? (
+                          <ToggleLeft className="h-4 w-4" />
+                        ) : (
+                          <ToggleRight className="h-4 w-4" />
+                        )}
+                      </Button>
                       <div className="absolute inset-0">
                         {field.type === "iframe" ? (
                           field.content.startsWith("data:application/pdf") ? (
@@ -380,10 +417,7 @@ const StepContainer = React.forwardRef<HTMLDivElement, StepContainerProps>(
                       } catch (error) {
                         console.error("Error checking content type:", error);
                         // If request fails, use link preview
-                        onAddField("link-preview", url, {
-                          width: 800,
-                          height: 200,
-                        });
+                        onAddField("iframe", url);
                       }
                     }
                   }}
